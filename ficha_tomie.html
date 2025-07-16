@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Ameaça Interativa: Bela Dama – Tomie</title>
+    <!-- Tailwind CSS para estilização rápida -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts para um estilo único -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #1a1a1a; /* Um cinza muito escuro, quase preto */
+            color: #e5e5e5;
+            background-image: url('https://www.transparenttextures.com/patterns/subtle-carbon.png');
+        }
+        .title-font {
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 0.05em;
+            text-shadow: 1px 1px 6px rgba(236, 72, 153, 0.6); /* Sombra rosa/magenta */
+        }
+        .stat-block {
+            background-color: rgba(26, 26, 26, 0.9);
+            border: 2px solid #831843; /* Borda rosa escuro */
+            border-radius: 0.5rem;
+            box-shadow: 0 0 25px rgba(236, 72, 153, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .section-header {
+            cursor: pointer;
+            border-bottom: 1px solid #be185d;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.3s ease;
+        }
+        .section-header:hover {
+            border-bottom-color: #ec4899;
+        }
+        .section-content {
+            display: block;
+            overflow: hidden;
+            max-height: 1000px;
+            transition: max-height 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .section-content.collapsed {
+            max-height: 0;
+        }
+        .icon {
+            transition: transform 0.3s ease;
+        }
+        .section-header.collapsed .icon {
+            transform: rotate(-90deg);
+        }
+        .ability-name {
+            color: #f9a8d4; /* text-pink-300 */
+        }
+        .rollable {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .rollable:hover {
+            color: #ec4899;
+            text-shadow: 0 0 8px #ec4899;
+        }
+        input[type=text], input[type=number] {
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-4xl mx-auto stat-block p-6 md:p-8">
+        <!-- Cabeçalho -->
+        <div class="text-center mb-6 border-b-2 border-pink-800 pb-4">
+            <h1 class="text-4xl md:text-5xl font-bold title-font text-pink-500">Bela Dama – Tomie</h1>
+            <p class="text-sm text-gray-400 mt-2">MEDO  SANGUE  ENERGIA  CRIATURA  MÉDIA</p>
+            <p class="text-xl font-bold text-gray-200 mt-1">VD 5+</p>
+        </div>
+
+        <!-- Presença Perturbadora -->
+        <div class="text-center bg-pink-900/30 p-3 rounded-lg mb-6 border border-pink-800">
+            <h3 class="font-bold text-pink-400">PRESENÇA PERTURBADORA</h3>
+            <p class="text-gray-300">DT <span id="pp-dt">30</span>  <span id="pp-dano">3d6</span> dano mental</p>
+        </div>
+
+        <!-- Grid de Estatísticas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <!-- Sentidos -->
+            <div class="text-center">
+                <h4 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Sentidos</h4>
+                <p class="text-sm text-pink-300">Visão às cegas (sangue)</p>
+            </div>
+            <!-- Defesa -->
+            <div class="text-center">
+                <h4 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Defesa</h4>
+                <p class="text-5xl font-bold title-font">11</p>
+                <div class="text-xs grid grid-cols-3 gap-1 mt-1">
+                    <span id="fort-display" class="rollable" onclick="rollDice('1d20+5', 'Fortitude')"><strong>FOR</strong> 1O+5</span>
+                    <span id="ref-display" class="rollable" onclick="rollDice('1d20+5', 'Reflexos')"><strong>REF</strong> 1O+5</span>
+                    <span id="von-display" class="rollable" onclick="rollDice('3d20+7', 'Vontade')"><strong>VON</strong> 3O+7</span>
+                </div>
+            </div>
+            <!-- Pontos de Vida -->
+            <div class="text-center">
+                <h4 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Pontos de Vida</h4>
+                <div class="flex items-center justify-center space-x-2 mt-1">
+                    <button onclick="updateHealth(-1)" class="bg-red-800 hover:bg-red-700 rounded px-2">-</button>
+                    <input id="damageInput" type="number" value="5" class="w-16 text-center">
+                    <button onclick="updateHealth(1)" class="bg-green-800 hover:bg-green-700 rounded px-2">+</button>
+                </div>
+                <p class="text-3xl font-bold mt-2"><span id="current-hp">12</span> / <span id="max-hp">12</span></p>
+                <p id="machucado-status" class="text-sm text-gray-400">(Machucado 6)</p>
+            </div>
+        </div>
+        
+        <!-- Seções Principais -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Coluna Esquerda -->
+            <div>
+                <!-- Resistências e Atributos -->
+                <div class="mb-6 space-y-4 text-sm md:text-base">
+                    <p><strong class="text-pink-400">Imunidades:</strong> Efeitos mentais, paralisia e físicos (Sangramento, Fraco, etc).</p>
+                    <p><strong class="text-pink-400">Resistências:</strong> Dano <span id="res-dano">1</span>, Físico <span id="res-fisico">1</span>, Paranormal <span id="res-paranormal">1</span>.</p>
+                    <p><strong class="text-pink-400">Vulnerabilidades:</strong> Nenhuma.</p>
+                    <div class="flex justify-around bg-gray-900/50 p-2 rounded">
+                        <span><strong>AGI</strong> 1</span>
+                        <span><strong>FOR</strong> 0</span>
+                        <span><strong>INT</strong> 2</span>
+                        <span><strong>PRE</strong> 3</span>
+                        <span><strong>VIG</strong> 1</span>
+                    </div>
+                    <p><strong class="text-gray-400">Perícias:</strong> <span class="rollable" onclick="rollDice('1d20+15', 'Atletismo')">Atletismo 1O+15</span></p>
+                    <p><strong class="text-gray-400">Deslocamento:</strong> <span id="deslocamento">6m</span> | 4</p>
+                </div>
+
+                <!-- Ações -->
+                <div class="collapsible-section">
+                    <div class="section-header">
+                        <h2 class="text-2xl title-font text-pink-400">Ações</h2>
+                        <i class="fas fa-chevron-down icon"></i>
+                    </div>
+                    <div class="section-content space-y-3 pl-4 border-l-2 border-pink-900">
+                        <div>
+                            <h4 class="font-semibold text-gray-200">Padrão  Agredir</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-300 mt-1 space-y-2">
+                                <li class="rollable" onclick="rollAttack('Tapa')"><strong>Tapa:</strong> Teste <span id="tapa-teste">1O+2</span> | Dano <span id="tapa-dano">1d4+2</span></li>
+                                <li class="rollable" onclick="rollAttack('Chute x2')"><strong>Chute x2:</strong> Teste <span id="chute-teste">2O+3</span> | Dano <span id="chute-dano">1d4+3</span></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-200">Padrão  Gritar por Ajuda</h4>
+                            <p class="text-gray-300 text-sm">Todo ser em alcance médio que a matou ou está fascinado deve fazer um teste de Vontade (DT <span id="grito-dt">30</span>). Falha causa dano mental igual à Presença Perturbadora atual. Outros na área sofrem metade do dano sem teste.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-200">Movimento  Fugir</h4>
+                            <p class="text-gray-300 text-sm">Pode iniciar uma cena de perseguição. É considerada lenta até seu deslocamento atingir 9m. Se alcançada, cai no chão.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-200">Reação  Seduzir para Sobreviver</h4>
+                            <p class="text-gray-300 text-sm">Ao ser atacada, força o atacante a um teste de Vontade (DT <span id="seduzir-dt">25</span>). Falha: fica atordoado por 1 rodada. Sucesso: o ataque acerta, mas causa +1d6 de dano extra.</p>
+                        </div>
+                         <div>
+                            <h4 class="font-semibold text-gray-200">Livre  Sangrar</h4>
+                            <p class="text-gray-300 text-sm">Com 0 PV, entra em morrendo e chora sangue. Seres em alcance curto devem fazer um teste de Vontade (DT <span id="sangrar-dt">25</span>) para não tentar estabilizá-la.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita -->
+            <div>
+                <!-- Contador de Mortes -->
+                <div class="mb-6 card p-4 rounded-lg">
+                    <h2 class="section-title">Contador de Mortes</h2>
+                    <div class="flex items-center justify-center space-x-4">
+                        <button onclick="removeMorte()" class="bg-gray-700 hover:bg-gray-600 rounded-full h-10 w-10 text-xl font-bold">-</button>
+                        <p class="text-6xl font-bold title-font text-pink-400" id="mortes-count">0</p>
+                        <button onclick="addMorte()" class="bg-red-800 hover:bg-red-700 rounded-full h-10 w-10 text-xl font-bold">+</button>
+                    </div>
+                </div>
+
+                <!-- Habilidades e Enigma -->
+                <div class="space-y-4">
+                    <div class="collapsible-section">
+                        <div class="section-header">
+                            <h2 class="text-2xl title-font text-pink-400">Poderes</h2>
+                            <i class="fas fa-chevron-down icon"></i>
+                        </div>
+                        <div class="section-content space-y-3 pl-4 border-l-2 border-pink-900">
+                            <div>
+                                <h3 class="font-bold ability-name">Seduzir à Primeira Vista</h3>
+                                <p class="text-gray-300 text-sm">Ao vê-la pela primeira vez, faça um teste de Vontade (DT 30). Falha: fica fascinado por ela até que a mate.</p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold ability-name">Me Ame</h3>
+                                <p class="text-gray-300 text-sm">Você deve matá-la em até 3 dias ou sofrerá 4d6 de dano mental. Faça um teste de Vontade (DT 30) sempre que a vir após o primeiro dia; se falhar, a ataca automaticamente.</p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold ability-name">Doce Garota</h3>
+                                <p class="text-gray-300 text-sm">Recebe +10 em testes de resistência contra alguém que a ama.</p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold ability-name">Nascer do Amor</h3>
+                                <p class="text-gray-300 text-sm">Sempre que for morta por alguém que a ama, retorna depois de 1 dia. Recebe +2 em todas as resistências, vida e deslocamento.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="collapsible-section">
+                        <div class="section-header">
+                            <h2 class="text-2xl title-font text-pink-400">Enigma do Medo: Berço de Ouro</h2>
+                            <i class="fas fa-chevron-down icon"></i>
+                        </div>
+                        <div class="section-content space-y-3 pl-4 border-l-2 border-pink-900">
+                            <p class="text-gray-300 text-sm">Só pode ser morta permanentemente por alguém que não a ama, e se seu "berço" (no porão da casa da vítima) for destruído de dentro para fora. Para isso, é preciso encontrar e queimar todas as fotos no porão (1d10+1 por morte). Ao final, ela se dissolve e todos que a amaram/mataram recebem a **Maldição do Amor** (Vontade DT 25 ao flertar/amar ou fica enjoado e vomita).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log de Rolagens -->
+        <div class="mt-8">
+            <h2 class="section-title">Log de Rolagens</h2>
+            <div id="roll-log" class="bg-gray-900/70 p-4 rounded-lg h-48 overflow-y-auto text-sm font-mono border border-gray-700">
+                <!-- Rolagens aparecerão aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- LÓGICA DA FICHA INTERATIVA ---
+        let mortes = 0;
+
+        function addMorte() {
+            mortes++;
+            updateStats();
+            logRoll(`<strong>Tomie morreu!</strong> Contagem de mortes: ${mortes}. Suas estatísticas foram fortalecidas.`);
+        }
+
+        function removeMorte() {
+            if (mortes > 0) {
+                mortes--;
+                updateStats();
+                logRoll(`Contagem de mortes diminuída para: ${mortes}. Suas estatísticas foram revertidas.`);
+            }
+        }
+
+        function updateStats() {
+            // Atualiza contador
+            document.getElementById('mortes-count').textContent = mortes;
+
+            // Atualiza Presença Perturbadora
+            document.getElementById('pp-dt').textContent = 30 + (mortes * 5);
+            document.getElementById('pp-dano').textContent = `3d6+${mortes}d6`;
+
+            // Atualiza PV
+            const maxHp = 12 + (mortes * 2);
+            document.getElementById('max-hp').textContent = maxHp;
+            document.getElementById('current-hp').textContent = maxHp; // Cura total ao reviver
+            document.getElementById('machucado-status').textContent = `(Machucado ${Math.floor(maxHp / 2)})`;
+
+            // Atualiza Deslocamento
+            document.getElementById('deslocamento').textContent = `${6 + (mortes * 2)}m`;
+
+            // Atualiza Resistências a Dano
+            document.getElementById('res-dano').textContent = 1 + (mortes * 2);
+            document.getElementById('res-fisico').textContent = 1 + (mortes * 2);
+            document.getElementById('res-paranormal').textContent = 1 + (mortes * 2);
+
+            // Atualiza Testes de Resistência
+            const fortBonus = 5 + (mortes * 2);
+            const refBonus = 5 + (mortes * 2);
+            const vonBonus = 7 + (mortes * 2);
+            document.getElementById('fort-display').innerHTML = `<strong class="text-gray-400">FOR</strong> 1O+${fortBonus}`;
+            document.getElementById('ref-display').innerHTML = `<strong class="text-gray-400">REF</strong> 1O+${refBonus}`;
+            document.getElementById('von-display').innerHTML = `<strong class="text-gray-400">VON</strong> 3O+${vonBonus}`;
+            document.getElementById('fort-display').setAttribute('onclick', `rollDice('1d20+${fortBonus}', 'Fortitude')`);
+            document.getElementById('ref-display').setAttribute('onclick', `rollDice('1d20+${refBonus}', 'Reflexos')`);
+            document.getElementById('von-display').setAttribute('onclick', `rollDice('3d20+${vonBonus}', 'Vontade')`);
+
+            // Atualiza Ataques
+            document.getElementById('tapa-teste').textContent = `1O+${2 + (mortes * 2)}`;
+            document.getElementById('tapa-dano').textContent = `1d4+${2 + mortes}`; // Corrigido para +1d4 por morte
+            document.getElementById('chute-teste').textContent = `2O+${3 + (mortes * 2)}`;
+            document.getElementById('chute-dano').textContent = `1d4+${3 + (mortes * 2)}`;
+
+            // Atualiza Habilidades
+            document.getElementById('grito-dt').textContent = 30 + (mortes * 2);
+            document.getElementById('seduzir-dt').textContent = 25 + (mortes * 2);
+            document.getElementById('sangrar-dt').textContent = 25 + (mortes * 5);
+        }
+
+        function updateHealth(multiplier) {
+            const hpElement = document.getElementById('current-hp');
+            const damageInput = document.getElementById('damageInput');
+            const machucadoStatus = document.getElementById('machucado-status');
+            const maxHp = parseInt(document.getElementById('max-hp').textContent);
+            
+            let currentHp = parseInt(hpElement.textContent);
+            const amount = parseInt(damageInput.value) * multiplier;
+            
+            currentHp += amount;
+            if (currentHp < 0) currentHp = 0;
+            if (currentHp > maxHp) currentHp = maxHp;
+
+            hpElement.textContent = currentHp;
+
+            if (currentHp <= Math.floor(maxHp / 2)) {
+                machucadoStatus.classList.add('text-pink-400');
+                machucadoStatus.classList.remove('text-gray-400');
+            } else {
+                machucadoStatus.classList.remove('text-pink-400');
+                machucadoStatus.classList.add('text-gray-400');
+            }
+            
+            logRoll(`Vida alterada em ${amount > 0 ? '+' : ''}${amount}. Novo total: ${currentHp}`);
+        }
+
+        function rollDice(formula, name) {
+             const [dicePart, bonusPart] = formula.split('+');
+             const numDice = parseInt(dicePart.match(/\d+/)[0]);
+             const bonus = parseInt(bonusPart) || 0;
+
+             let rolls = [];
+             for (let i = 0; i < numDice; i++) {
+                 rolls.push(Math.floor(Math.random() * 20) + 1);
+             }
+
+             const maxRoll = Math.max(...rolls);
+             const total = maxRoll + bonus;
+
+             logRoll(`<strong>${name}:</strong> Rolou [${rolls.join(', ')}] &rarr; ${maxRoll} + ${bonus} = <strong class="text-xl text-white">${total}</strong>.`);
+        }
+        
+        function rollAttack(rollName) {
+            let resultText = `<strong>${rollName}:</strong> `;
+            const cleanRollName = rollName.toLowerCase().replace(' x2','');
+            
+            // Ataque
+            const [testDicePart, testBonusPart] = document.getElementById(`${cleanRollName}-teste`).textContent.split('+');
+            const numTestDice = parseInt(testDicePart.match(/\d+/)[0]);
+            const testBonus = parseInt(testBonusPart) || 0;
+            
+            let testRolls = [];
+            for (let i = 0; i < numTestDice; i++) {
+                testRolls.push(Math.floor(Math.random() * 20) + 1);
+            }
+            const maxTestRoll = Math.max(...testRolls);
+            const testTotal = maxTestRoll + testBonus;
+            resultText += `Ataque [${testRolls.join(', ')}] &rarr; ${maxTestRoll} + ${testBonus} = <strong class="text-xl text-white">${testTotal}</strong>. `;
+            
+            // Dano
+            const [damageDicePart, damageBonusPart] = document.getElementById(`${cleanRollName}-dano`).textContent.split('+');
+            const numDamageDice = parseInt(damageDicePart.match(/\d+/)[0]);
+            const dieType = parseInt(damageDicePart.match(/d(\d+)/)[1]);
+            const damageBonus = parseInt(damageBonusPart) || 0;
+
+            let damageRolls = [];
+            let damageTotal = 0;
+            for (let i = 0; i < numDamageDice; i++) {
+                const roll = Math.floor(Math.random() * dieType) + 1;
+                damageRolls.push(roll);
+                damageTotal += roll;
+            }
+            damageTotal += damageBonus;
+            resultText += `Dano: [${damageRolls.join('+')}] + ${damageBonus} = <strong class="text-xl text-pink-400">${damageTotal}</strong>.`;
+            
+            logRoll(resultText);
+        }
+
+        function logRoll(message) {
+            const log = document.getElementById('roll-log');
+            const entry = document.createElement('div');
+            entry.innerHTML = message;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        document.querySelectorAll('.collapsible-section .section-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                header.classList.toggle('collapsed');
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                } 
+            });
+        });
+
+        // Inicializa os status na carga da página
+        document.addEventListener('DOMContentLoaded', updateStats);
+    </script>
+</body>
+</html>
