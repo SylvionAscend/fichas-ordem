@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Ameaça Interativa: Grimm, o Senhor da Trupe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Merriweather', serif;
+            background-color: #100c0c;
+            color: #e5e5e5;
+            background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png');
+        }
+        .title-font {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.1em;
+            text-shadow: 2px 2px 8px rgba(220, 38, 38, 0.5);
+        }
+        .stat-block {
+            background-color: rgba(17, 12, 12, 0.9);
+            border: 2px solid #450a0a;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 25px rgba(220, 38, 38, 0.3);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .section-header {
+            cursor: pointer;
+            border-bottom: 1px solid #7f1d1d;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.3s ease;
+        }
+        .section-header:hover {
+            border-bottom-color: #dc2626;
+        }
+        .section-content {
+            display: block;
+            overflow: hidden;
+            max-height: 1000px;
+            transition: max-height 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .section-content.collapsed {
+            max-height: 0;
+        }
+        .icon {
+            transition: transform 0.3s ease;
+        }
+        .section-header.collapsed .icon {
+            transform: rotate(-90deg);
+        }
+        .ability-name {
+            color: #fca5a5;
+        }
+        .rollable {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .rollable:hover {
+            color: #ef4444;
+            text-shadow: 0 0 8px #ef4444;
+        }
+        input[type=text], input[type=number] {
+            background-color: #1f2937;
+            border: 1px solid #4b5563;
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-4xl mx-auto stat-block p-6 md:p-8">
+        <!-- Cabeçalho -->
+        <div class="text-center mb-6 border-b-2 border-red-800 pb-4">
+            <h1 class="text-4xl md:text-5xl font-bold title-font text-red-500">Grimm, o Senhor da Trupe</h1>
+            <p class="text-sm text-gray-400 mt-2">SANGUE  MORTE  CONHECIMENTO  MEDO  CRIATURA  MÉDIO</p>
+            <p class="text-xl font-bold text-gray-200 mt-1">VD 300</p>
+        </div>
+
+        <!-- Presença Perturbadora -->
+        <div class="text-center bg-red-900/30 p-3 rounded-lg mb-6 border border-red-800">
+            <h3 class="font-bold text-red-400">PRESENÇA PERTURBADORA</h3>
+            <p class="text-gray-300">DT 35  Dano mental a ser definido  NEX 70%+ é imune</p>
+        </div>
+
+        <!-- Grid de Estatísticas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <!-- Sentidos -->
+            <div class="text-center">
+                <h4 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Sentidos</h4>
+                <p class="text-lg rollable" onclick="rollDice('5d20+30', 'Percepção')"><span class="font-semibold">Percepção</span> 5O+30</p>
+                <p class="text-lg rollable" onclick="rollDice('3d20+25', 'Iniciativa')"><span class="font-semibold">Iniciativa</span> 3O+25</p>
+                <p class="text-sm text-red-300">Percepção às cegas</p>
+            </div>
+            <!-- Defesa -->
+            <div class="text-center">
+                <h4 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Defesa</h4>
+                <p class="text-5xl font-bold title-font">29</p>
+                <div class="text-xs grid grid-cols-3 gap-1 mt-1">
+                    <span class="rollable" onclick="rollDice('3d20+20', 'Fortitude')"><strong class="text-gray-400">FOR</strong> 3O+20</span>
+                    <span class="rollable" onclick="rollDice('3d20+25', 'Reflexos')"><strong class="text-gray-400">REF</strong> 3O+25</span>
+                    <span class="rollable" onclick="rollDice('5d20+30', 'Vontade')"><strong class="text-gray-400">VON</strong> 5O+30</span>
+                </div>
+            </div>
+            <!-- Pontos de Vida -->
+            <div class="text-center">
+                <h4 class="font-bold text-gray-400 text-sm uppercase tracking-wider">Pontos de Vida</h4>
+                <div class="flex items-center justify-center space-x-2 mt-1">
+                    <button onclick="updateHealth(-1)" class="bg-red-800 hover:bg-red-700 rounded px-2">-</button>
+                    <input id="damageInput" type="number" value="10" class="w-16 text-center">
+                    <button onclick="updateHealth(1)" class="bg-green-800 hover:bg-green-700 rounded px-2">+</button>
+                </div>
+                <p class="text-3xl font-bold mt-2"><span id="current-hp">1200</span> / 1200</p>
+                <p id="machucado-status" class="text-sm text-gray-400">(Machucado 600)</p>
+            </div>
+        </div>
+        
+        <!-- Seções Principais -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Coluna Esquerda -->
+            <div>
+                <!-- Resistências e Atributos -->
+                <div class="mb-6 space-y-4 text-sm md:text-base">
+                    <p><strong class="text-red-400">Imunidades:</strong> Sangue, condições de paralisia e mentais.</p>
+                    <p><strong class="text-red-400">Resistências:</strong> Dano 40; Conhecimento 40, Energia 40; Físico (Balístico, Corte, Impacto, Perfuração) 40.</p>
+                    <p><strong class="text-red-400">Vulnerabilidades:</strong> Morte</p>
+                    <div class="flex justify-around bg-gray-900/50 p-2 rounded">
+                        <span class="rollable" onclick="rollDice('3d20', 'Teste de Agilidade')"><strong>AGI</strong> 3</span>
+                        <span class="rollable" onclick="rollDice('2d20', 'Teste de Força')"><strong>FOR</strong> 2</span>
+                        <span class="rollable" onclick="rollDice('4d20', 'Teste de Intelecto')"><strong>INT</strong> 4</span>
+                        <span class="rollable" onclick="rollDice('5d20', 'Teste de Presença')"><strong>PRE</strong> 5</span>
+                        <span class="rollable" onclick="rollDice('3d20', 'Teste de Vigor')"><strong>VIG</strong> 3</span>
+                    </div>
+                    <p><strong class="text-gray-400">Perícias:</strong> <span class="rollable" onclick="rollDice('4d20+20', 'Ocultismo')">Ocultismo 4O+20</span></p>
+                    <p><strong class="text-gray-400">Deslocamento:</strong> 15m | 10</p>
+                </div>
+
+                <!-- Ações -->
+                <div class="collapsible-section">
+                    <div class="section-header">
+                        <h2 class="text-2xl title-font text-red-400">Ações</h2>
+                        <i class="fas fa-chevron-down icon"></i>
+                    </div>
+                    <div class="section-content space-y-3 pl-4 border-l-2 border-red-900">
+                        <p class="text-xs text-gray-400 italic">Defesa Especial: Alvos só podem usar a reação Esquiva, mas podem usar um teste de Fortitude no lugar de Reflexos.</p>
+                        <div>
+                            <h4 class="font-semibold text-gray-200">Padrão  Agredir</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-300 mt-1 space-y-2">
+                                <li class="rollable" onclick="rollDice(null, 'Espinhos do Fim', '12d6', 'corte')"><strong>Espinhos do Fim:</strong> Área de 12m de raio. Alvos sofrem 12d6 de dano de corte (Reflexos DT 35 anula).</li>
+                                <li class="rollable" onclick="rollDice(null, 'Fogos Dançantes', '6d12', 'Fogo')"><strong>Fogos Dançantes:</strong> Linha de 3m (alcance médio). Alvos sofrem 6d12 de dano de Fogo (Reflexos DT 35 anula).</li>
+                                <li class="rollable" onclick="rollDice(null, 'Morcegos da Noite', '5d10', 'Perfuração')"><strong>Morcegos da Noite:</strong> Área de 6m de raio (alcance curto). Alvos sofrem 5d10 de dano de Perfuração (Reflexos DT 35 permite sair e anular).</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-200">Movimento  Avanço do Pesadelo</h4>
+                            <p class="text-gray-300 text-sm rollable" onclick="rollDice(null, 'Avanço do Pesadelo', '3d8', 'Corte')">Avança 18m em linha reta. Todos na linha sofrem 3d8 de dano de Corte (Reflexos DT 30 permite sair).</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-200">Reação  Aparição das Sombras</h4>
+                            <p class="text-gray-300 text-sm">Quando um inimigo age hostilmente, Grimm teleporta para trás do alvo mais distante. Esse alvo deve fazer um teste de Vontade (DT 35) ou será alvo de *Espinhos do Fim* como ação livre.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-200">Padrão  Rituais</h4>
+                            <p class="text-gray-300 text-sm">Pode conjurar a forma **Discente** de: *Chamas do Caos, Purgatório, Invólucro de Carne, Tentáculos de Lodo, Vomitar Pestes*. Pode testar Ocultismo (DT 35) para conjurar a forma **Verdadeira**.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita -->
+            <div>
+                <!-- Condições e Debuffs -->
+                <div class="mb-6">
+                    <h2 class="section-title">Condições & Debuffs</h2>
+                    <div class="flex space-x-2 mb-2">
+                        <input type="text" id="debuffInput" class="flex-grow" placeholder="Ex: Abalado, -O em ataques...">
+                        <button onclick="addDebuff()" class="bg-red-800 hover:bg-red-700 rounded px-3 py-1 font-bold">Add</button>
+                    </div>
+                    <ul id="debuffList" class="space-y-1 text-sm">
+                        <!-- Debuffs serão adicionados aqui -->
+                    </ul>
+                </div>
+
+                <!-- Habilidades e Enigma -->
+                <div class="space-y-4">
+                    <div class="collapsible-section">
+                        <div class="section-header">
+                            <h2 class="text-2xl title-font text-red-400">Habilidades Especiais</h2>
+                            <i class="fas fa-chevron-down icon"></i>
+                        </div>
+                        <div class="section-content space-y-3 pl-4 border-l-2 border-red-900">
+                            <div>
+                                <h3 class="font-bold ability-name">Duelo Elegante</h3>
+                                <p class="text-gray-300 text-sm">Grimm aprecia a etiqueta do combate.
+                                    <br><strong>Reverência:</strong> Se um personagem usar sua primeira ação para cumprimentá-lo, Grimm perde metade de suas Resistências a Dano contra aquele personagem pela cena.
+                                    <br><strong>Desrespeito:</strong> Se um personagem impedir seu cumprimento inicial, Grimm entra em frenesi contra esse alvo, ganhando uma ação padrão e de movimento adicionais por turno para atacá-lo até que morra.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold ability-name">Música de Batalha</h3>
+                                <p class="text-gray-300 text-sm">Uma melodia orquestral toca durante o combate. Personagens que derrotem Grimm ou resolvam seu Enigma recuperam +2d10 de Sanidade permanentemente.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapsible-section">
+                        <div class="section-header">
+                            <h2 class="text-2xl title-font text-red-400">Poder: A Criança do Pesadelo</h2>
+                            <i class="fas fa-chevron-down icon"></i>
+                        </div>
+                        <div class="section-content space-y-3 pl-4 border-l-2 border-red-900">
+                             <!-- Conteúdo da Criança do Pesadelo aqui -->
+                             <p class="text-gray-300 text-sm">Na primeira rodada, Grimm escolhe um alvo para ser o guardião de sua "criança". O guardião pode usar a habilidade da criança como ação livre.</p>
+                             <ul class="list-disc list-inside text-sm text-gray-400 mt-2 space-y-1">
+                                <li><strong>Estado 1 (Inicial):</strong> Permite conjurar o ritual **Chamas do Caos** (base).</li>
+                                <li><strong>Estado 2 (200 VD):</strong> Permite conjurar a forma **Discente** de *Chamas do Caos* (custo 2 PE).</li>
+                                <li><strong>Estado 3 (360 VD):</strong> Permite conjurar a forma **Verdadeira** de *Chamas do Caos* (custo 6 PE).</li>
+                             </ul>
+                             <p class="text-gray-300 text-sm mt-2"><strong>Preço:</strong> Cada evolução custa **1d6 de Sanidade permanente** (aumenta para 2d6 ao atingir o Estado 3).</p>
+                        </div>
+                    </div>
+                    <div class="collapsible-section">
+                        <div class="section-header">
+                            <h2 class="text-2xl title-font text-red-400">Enigma de Medo</h2>
+                            <i class="fas fa-chevron-down icon"></i>
+                        </div>
+                        <div class="section-content space-y-3 pl-4 border-l-2 border-red-900">
+                            <p class="text-gray-300 text-sm">Quando a Criança do Pesadelo atinge o Estado 3, o guardião deve retornar a Grimm. Apenas neste momento, o guardião pode atacar Grimm. Se derrotado, a Criança pode ser poupada e evolui para um "Quarto Estado", tornando-se um aliado permanente.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log de Rolagens -->
+        <div class="mt-8">
+            <h2 class="section-title">Log de Rolagens</h2>
+            <div id="roll-log" class="bg-gray-900/70 p-4 rounded-lg h-48 overflow-y-auto text-sm font-mono border border-gray-700">
+                <!-- Rolagens aparecerão aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- LÓGICA DA FICHA INTERATIVA ---
+
+        // Função para seções colapsáveis
+        document.querySelectorAll('.collapsible-section .section-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                header.classList.toggle('collapsed');
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                } 
+            });
+        });
+
+        // Função para adicionar debuffs
+        function addDebuff() {
+            const input = document.getElementById('debuffInput');
+            const list = document.getElementById('debuffList');
+            const text = input.value.trim();
+            if (text === '') return;
+
+            const li = document.createElement('li');
+            li.className = 'bg-gray-700 p-2 rounded flex justify-between items-center';
+            li.innerHTML = `<span>${text}</span><button class="text-red-400 hover:text-red-300">&times;</button>`;
+            
+            li.querySelector('button').addEventListener('click', () => {
+                li.remove();
+            });
+
+            list.appendChild(li);
+            input.value = '';
+        }
+
+        // Função para atualizar Pontos de Vida
+        function updateHealth(multiplier) {
+            const hpElement = document.getElementById('current-hp');
+            const damageInput = document.getElementById('damageInput');
+            const machucadoStatus = document.getElementById('machucado-status');
+            
+            let currentHp = parseInt(hpElement.textContent);
+            const amount = parseInt(damageInput.value) * multiplier;
+            
+            currentHp += amount;
+            if (currentHp < 0) currentHp = 0;
+            if (currentHp > 1200) currentHp = 1200;
+
+            hpElement.textContent = currentHp;
+
+            if (currentHp <= 600) {
+                machucadoStatus.classList.add('text-yellow-400');
+                machucadoStatus.classList.remove('text-gray-400');
+            } else {
+                machucadoStatus.classList.remove('text-yellow-400');
+                machucadoStatus.classList.add('text-gray-400');
+            }
+            
+            logRoll(`Vida alterada em ${amount > 0 ? '+' : ''}${amount}. Novo total: ${currentHp}`);
+        }
+
+        // Função para rolar dados
+        function rollDice(testFormula, rollName, damageFormula = null, damageType = '') {
+            let resultText = `<strong>${rollName}:</strong> `;
+            
+            if (testFormula) {
+                const [dicePart, bonusPart] = testFormula.split('+');
+                const numDice = parseInt(dicePart.match(/\d+/)[0]);
+                const bonus = parseInt(bonusPart) || 0;
+                
+                let rolls = [];
+                for (let i = 0; i < numDice; i++) {
+                    rolls.push(Math.floor(Math.random() * 20) + 1);
+                }
+                
+                const maxRoll = Math.max(...rolls);
+                const total = maxRoll + bonus;
+                
+                resultText += `Rolou [${rolls.join(', ')}] &rarr; ${maxRoll} + ${bonus} = <strong class="text-xl text-white">${total}</strong>. `;
+            }
+
+            if (damageFormula) {
+                const [numDamageDice, dieType, damageBonus] = damageFormula.match(/(\d+)d(\d+)(?:\+(\d+))?/).slice(1).map(n => parseInt(n) || 0);
+                
+                let damageRolls = [];
+                let damageTotal = 0;
+                for (let i = 0; i < numDamageDice; i++) {
+                    const roll = Math.floor(Math.random() * dieType) + 1;
+                    damageRolls.push(roll);
+                    damageTotal += roll;
+                }
+                damageTotal += damageBonus;
+
+                resultText += `Dano: [${damageRolls.join('+')}] + ${damageBonus} = <strong class="text-xl text-red-400">${damageTotal}</strong> ${damageType}.`;
+            }
+            
+            logRoll(resultText);
+        }
+
+        // Função para logar rolagens e eventos
+        function logRoll(message) {
+            const log = document.getElementById('roll-log');
+            const entry = document.createElement('div');
+            entry.innerHTML = message;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight; // Auto-scroll para o final
+        }
+
+    </script>
+</body>
+</html>
